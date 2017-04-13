@@ -12,28 +12,32 @@ namespace ChallengeHeroMonsterClassesPart1
         protected void Page_Load(object sender, EventArgs e)
         {
             Character hero = new Character();
-            Character monster = new Character();
-
             hero.Name = "Joe";
             hero.Health = 100;
             hero.DamageMaximum = 30;
-            hero.AttackBonus = 15;
+            hero.AttackBonus = false;
 
+            Character monster = new Character();
             monster.Name = "Skeleton";
             monster.Health = 100;
             monster.DamageMaximum = 10;
-            monster.AttackBonus = 10;
+            monster.AttackBonus = false;
 
-            monster.Defend(hero.Attack());
-            hero.Defend(monster.Attack());
+            // Hero attacks
+            int damage = hero.Attack();
+            monster.Defend(damage);
 
-            DisplayResults(hero, monster);
+            // Monster attacks
+            damage = monster.Attack();
+            hero.Defend(damage);
+
+            DisplayResults(hero);
+            DisplayResults(monster);
         }
 
-        private void DisplayResults(Character hero, Character monster)
+        private void DisplayResults(Character character)
         {
-            resultLabel.Text = $"Hero {hero.Name} now has {hero.Health} health. <br />" +
-                $"Monster {monster.Name} now has {monster.Health} health.";
+            resultLabel.Text += $"Name: {character.Name} - health: {character.Health} - attack bonus: {character.AttackBonus} - damage maximum: {character.DamageMaximum}.<br />";
         }
 
         public class Character
@@ -41,13 +45,13 @@ namespace ChallengeHeroMonsterClassesPart1
             public string Name { get; set; }
             public int Health { get; set; }
             public int DamageMaximum { get; set; }
-            public int AttackBonus { get; set; }
+            public bool AttackBonus { get; set; }
 
             Random random = new Random();
 
             public int Attack()
             {
-                return random.Next(this.AttackBonus, this.DamageMaximum);
+                return random.Next(this.DamageMaximum);
             }
 
             public void Defend(int damage)
