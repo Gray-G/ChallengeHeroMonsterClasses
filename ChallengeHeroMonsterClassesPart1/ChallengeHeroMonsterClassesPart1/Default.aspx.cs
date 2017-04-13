@@ -12,32 +12,18 @@ namespace ChallengeHeroMonsterClassesPart1
         protected void Page_Load(object sender, EventArgs e)
         {
             Character hero = new Character();
-            hero.Name = "Joe";
-            hero.Health = 100;
-            hero.DamageMaximum = 30;
-            hero.AttackBonus = false;
+            initializeCharacterValues("Joe", 100, 30, false, hero);
 
             Character monster = new Character();
-            monster.Name = "Skeleton";
-            monster.Health = 100;
-            monster.DamageMaximum = 10;
-            monster.AttackBonus = false;
+            initializeCharacterValues("Skeleton", 100, 20, false, monster);
 
-            // Hero attacks
-            int damage = hero.Attack();
-            monster.Defend(damage);
+            Dice dice = new Dice();
 
-            // Monster attacks
-            damage = monster.Attack();
-            hero.Defend(damage);
+            // Bonus
+            checkAttackBonus(hero, monster, dice);
 
-            DisplayResults(hero);
-            DisplayResults(monster);
-        }
-
-        private void DisplayResults(Character character)
-        {
-            resultLabel.Text += $"Name: {character.Name} - health: {character.Health} - attack bonus: {character.AttackBonus} - damage maximum: {character.DamageMaximum}.<br />";
+            // While either Character is alive...
+            battleSequence(hero, monster, dice);
         }
 
         public class Character
@@ -47,17 +33,79 @@ namespace ChallengeHeroMonsterClassesPart1
             public int DamageMaximum { get; set; }
             public bool AttackBonus { get; set; }
 
-            Random random = new Random();
-
-            public int Attack()
+            public int Attack(Dice dice)
             {
-                return random.Next(this.DamageMaximum);
+                dice.Sides = this.DamageMaximum;
+                return dice.Roll();
             }
 
             public void Defend(int damage)
             {
                 this.Health -= damage;
             }
+        }
+
+        public class Dice
+        {
+            public int Sides { get; set; }
+            Random random = new Random();
+
+            public int Roll()
+            {
+                return random.Next(this.Sides);
+            }
+        }
+
+        private void initializeCharacterValues(string Name, int Health, int DamageMaximum, bool AttackBonus, Character character)
+        {
+            character.Name = Name;
+            character.Health = Health;
+            character.DamageMaximum = DamageMaximum;
+            character.AttackBonus = AttackBonus;
+        }
+
+        private void checkAttackBonus(Character hero, Character monster, Dice dice)
+        {
+            if (hero.AttackBonus)
+                monster.Defend(hero.Attack(dice));
+            if (monster.AttackBonus)
+                hero.Defend(monster.Attack(dice));
+        }
+
+        private void battleSequence(Character hero, Character monster, Dice dice)
+        {
+            while (hero.Health > 0 && monster.Health > 0)
+            {
+                // Hero attacks
+                monster.Defend(hero.Attack(dice));
+
+                // Monster attacks
+                hero.Defend(monster.Attack(dice));
+
+                // Print stats to label
+                printStats(hero); 
+                printStats(monster);
+                resultLabel.Text += "<br />";
+            }
+            // Print winner to resultLabel.Text
+            printDeathMessage(hero, monster);
+
+            return;
+        }
+
+        private void printStats(Character opponent)
+        {
+            resultLabel.Text += $"Name: {opponent.Name} - Health: {opponent.Health} - Attack Bonus: {opponent.AttackBonus} - Damage Maximum: {opponent.DamageMaximum}.<br />";
+        }
+
+        private void printDeathMessage(Character opponent1, Character opponent2)
+        {
+            if (opponent1.Health < 0 && opponent2.Health < 0)
+                resultLabel.Text += "<br />They both died.";
+            else if (opponent1.Health < 0)
+                resultLabel.Text += $"<br />{opponent2.Name} defeats {opponent1.Name}.";
+            else
+                resultLabel.Text += $"<br />{opponent1.Name} defeats {opponent2.Name}.";
         }
     }
 }

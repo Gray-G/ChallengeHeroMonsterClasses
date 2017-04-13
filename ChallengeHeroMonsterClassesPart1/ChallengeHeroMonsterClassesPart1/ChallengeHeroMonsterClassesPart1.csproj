@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Business Rules\ChallengeHeroMonsterClassesPart1.txt" />
+    <Content Include="Business Rules\ChallengeHeroMonsterClassesPart2.txt" />
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
